@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquitetura Flutter + GetX Feature-First</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1, h2, h3 {
+      color: #f8fafc;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 30px;
+      margin-top: 60px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 22px;
+      margin-top: 30px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: #cbd5e1;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .hero {
+      padding: 80px 0 40px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      max-width: 900px;
+    }
+
+    .card {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    pre {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin-top: 20px;
+      color: #93c5fd;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .highlight {
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .grid .card {
+      margin-top: 0;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .footer {
+      margin-top: 80px;
+      padding-top: 30px;
+      border-top: 1px solid #334155;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .flow {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 30px;
+      line-height: 2;
+      color: #93c5fd;
+    }
+
+    .directory-title {
+      color: #38bdf8;
+      margin-top: 30px;
+    }
+
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 26px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <style>
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: #020617;
+      border-right: 1px solid #1e293b;
+      padding: 30px 20px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-top: 0;
+      border: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      color: #cbd5e1;
+      text-decoration: none;
+      display: block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .sidebar a:hover {
+      background: #1e293b;
+      color: #38bdf8;
+    }
+
+    .content {
+      flex: 1;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid #1e293b;
+      }
+    }
+  </style>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Documentação</h2>
+
+      <ul>
+        <li><a href="#objetivo">Objetivo</a></li>
+        <li><a href="#estrutura">Estrutura Principal</a></li>
+        <li><a href="#arquitetura-completa">Arquitetura Completa</a></li>
+        <li><a href="#feature-first">Feature-First</a></li>
+        <li><a href="#modulos">Módulos</a></li>
+        <li><a href="#core">Core</a></li>
+        <li><a href="#data">Data</a></li>
+        <li><a href="#shared">Shared</a></li>
+        <li><a href="#routes">Routes</a></li>
+        <li><a href="#desacoplamento">Desacoplamento</a></li>
+        <li><a href="#migracao">Migração</a></li>
+        <li><a href="#convencoes">Convenções</a></li>
+        <li><a href="#boas-praticas">Boas Práticas</a></li>
+        <li><a href="#vantagens">Vantagens</a></li>
+        <li><a href="#referencias">Referências</a></li>
+      </ul>
+    </aside>
+
+    <div class="content">
+  <div class="container">
+
+    <section class="hero">
+      <div style="margin-bottom: 20px;">
+        <span class="tag">Versão 1.5.1</span>
+        
+      </div>
+      <h1>Flutter Feature-First Modular Architecture</h1>
+
+      <p>
+        Esta documentação descreve uma arquitetura moderna para aplicações Flutter
+        baseada em módulos (feature-first), separação de responsabilidades,
+        organização escalável e foco em produtividade.
+      </p>
+
+      <p>
+        A arquitetura possui recomendação preferencial do GetX,
+        porém permanece desacoplada do gerenciamento de estado,
+        permitindo utilização com Provider, Riverpod, Bloc e outras soluções.
+      </p>
+
+      <div>
+        <span class="tag">Flutter</span>
+        <span class="tag">GetX</span>
+        <span class="tag">Feature-First</span>
+        <span class="tag">Modular</span>
+        <span class="tag">Scalable</span>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="objetivo">Objetivo da Arquitetura</h2>
+
+      <p>
+        O principal objetivo desta arquitetura é criar uma estrutura simples de navegar,
+        altamente escalável e organizada para aplicações Flutter modernas.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Escalabilidade</h3>
+          <p>
+            Permite crescimento do projeto sem transformar o código em um ambiente desorganizado.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Separação de Responsabilidades</h3>
+          <p>
+            Cada camada possui um propósito claro, reduzindo acoplamento.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Produtividade</h3>
+          <p>
+            Estrutura rápida de navegar e fácil de localizar arquivos.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Manutenção</h3>
+          <p>
+            Facilita manutenção, refatoração e entrada de novos desenvolvedores.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="estrutura">Estrutura Principal</h2>
+
+      <pre><code>lib/
+│
+├── core/
+├── data/
+├── modules/
+├── routes/
+├── shared/
+├── app.dart
+└── main.dart</code></pre>
+    </section>
+
+    <section>
+      <h2 id="arquitetura-completa">Arquitetura Completa</h2>
+
+      <pre><code>lib/
+│
+├── core/
+│   ├── constants/
+│   ├── theme/
+│   ├── utils/
+│   ├── guards/
+│   ├── services/
+│   ├── extensions/
+│   └── helpers/
+│
+├── data/
+│   ├── models/
+│   ├── providers/
+│   ├── repositories/
+│   └── dto/
+│
+├── modules/
+│   ├── auth/
+│   │   ├── auth_binding.dart
+│   │   ├── auth_controller.dart
+│   │   ├── auth_service.dart
+│   │   ├── login_page.dart
+│   │   ├── register_page.dart
+│   │   └── login_form.dart
+│   │
+│   ├── home/
+│   ├── blog/
+│   ├── artists/
+│   └── events/
+│
+├── routes/
+│   ├── app_pages.dart
+│   ├── app_routes.dart
+│   └── route_guards.dart
+│
+├── shared/
+│   ├── widgets/
+│   ├── dialogs/
+│   ├── components/
+│   └── cards/
+│
+├── app.dart
+└── main.dart</code></pre>
+    </section>
+
+    <section>
+      <h2 id="feature-first">Conceito Feature-First</h2>
+
+      <p>
+        A arquitetura é baseada em <span class="highlight">feature-first</span>, ou seja,
+        a aplicação é organizada por funcionalidades e não por tipo de arquivo.
+      </p>
+
+      <p>
+        Isso evita grandes diretórios globais como:
+      </p>
+
+      <pre><code>controllers/
+pages/
+widgets/
+services/</code></pre>
+
+      <p>
+        Em vez disso, cada módulo possui seus próprios arquivos.
+      </p>
+
+      <pre><code>modules/
+└── auth/
+    ├── auth_binding.dart
+    ├── auth_controller.dart
+    ├── login_page.dart
+    └── login_form.dart</code></pre>
+    </section>
+
+    <section>
+      <h2>Por que não usar subpastas dentro dos módulos?</h2>
+
+      <p>
+        Nesta arquitetura os módulos não possuem diretórios internos como:
+      </p>
+
+      <pre><code>bindings/
+controllers/
+views/
+widgets/</code></pre>
+
+      <p>
+        A decisão foi tomada para melhorar produtividade e velocidade de navegação.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Menos profundidade</h3>
+          <p>
+            Reduz quantidade de cliques e diretórios.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Navegação rápida</h3>
+          <p>
+            Facilita encontrar arquivos relacionados.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Melhor produtividade</h3>
+          <p>
+            Estrutura mais prática para projetos Flutter modernos.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Mais simples</h3>
+          <p>
+            Evita complexidade desnecessária em módulos pequenos e médios.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="core">Diretório Core</h2>
+
+      <p>
+        O diretório <strong>core</strong> contém toda infraestrutura global da aplicação.
+      </p>
+
+      <div class="card">
+        <h3 class="directory-title">core/constants</h3>
+        <p>
+          Constantes globais da aplicação.
+        </p>
+
+        <pre><code>app_name.dart
+api_routes.dart
+storage_keys.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/theme</h3>
+        <p>
+          Tema global da aplicação.
+        </p>
+
+        <pre><code>app_colors.dart
+app_theme.dart
+app_text_styles.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/utils</h3>
+        <p>
+          Funções utilitárias reutilizáveis.
+        </p>
+
+        <pre><code>date_formatter.dart
+validators.dart
+mask_utils.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/guards</h3>
+        <p>
+          Proteções de rota e middlewares do GetX.
+        </p>
+
+        <pre><code>auth_guard.dart
+admin_guard.dart
+logged_out_guard.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/services</h3>
+        <p>
+          Serviços globais compartilhados pela aplicação.
+        </p>
+
+        <pre><code>auth_service.dart
+storage_service.dart
+connectivity_service.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/extensions</h3>
+        <p>
+          Extensions do Dart para facilitar reutilização.
+        </p>
+
+        <pre><code>string_extension.dart
+datetime_extension.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">core/helpers</h3>
+        <p>
+          Helpers reutilizáveis e abstrações auxiliares.
+        </p>
+
+        <pre><code>snackbar_helper.dart
+dialog_helper.dart</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="data">Diretório Data</h2>
+
+      <p>
+        O diretório <strong>data</strong> centraliza toda camada de dados da aplicação.
+      </p>
+
+      <div class="card">
+        <h3 class="directory-title">data/models</h3>
+        <p>
+          Modelos de dados da aplicação.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">data/providers</h3>
+        <p>
+          Responsável pela comunicação direta com APIs, Supabase,
+          banco local, Firebase e serviços externos.
+        </p>
+
+        <pre><code>auth_provider.dart
+blog_provider.dart
+events_provider.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">data/repositories</h3>
+        <p>
+          Responsável por regras de negócio relacionadas ao acesso de dados,
+          transformação de informações e integração entre providers.
+        </p>
+
+        <pre><code>auth_repository.dart
+blog_repository.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3 class="directory-title">data/dto</h3>
+        <p>
+          Objetos de transferência de dados utilizados em requests e responses.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="modulos">Diretório Modules</h2>
+
+      <p>
+        O diretório <strong>modules</strong> contém todas funcionalidades da aplicação.
+      </p>
+
+      <pre><code>modules/
+├── auth/
+├── home/
+├── blog/
+├── artists/
+└── events/</code></pre>
+
+      <p>
+        Cada módulo representa uma funcionalidade independente.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Controller</h3>
+          <p>
+            Responsável pelo estado e lógica da UI.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Binding</h3>
+          <p>
+            Responsável pela injeção de dependência do módulo.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Pages</h3>
+          <p>
+            Telas da funcionalidade.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Widgets locais</h3>
+          <p>
+            Widgets utilizados apenas pelo módulo.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="shared">Diretório Shared</h2>
+
+      <p>
+        O diretório <strong>shared</strong> contém componentes reutilizáveis utilizados
+        em vários módulos.
+      </p>
+
+      <pre><code>shared/
+├── widgets/
+├── dialogs/
+├── cards/
+└── components/</code></pre>
+
+      <p>
+        Exemplos:
+      </p>
+
+      <ul>
+        <li>Botões reutilizáveis</li>
+        <li>Inputs globais</li>
+        <li>Dialogs</li>
+        <li>Cards</li>
+        <li>Loaders</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 id="routes">Diretório Routes</h2>
+
+      <p>
+        Centraliza todas rotas da aplicação utilizando GetX.
+      </p>
+
+      <pre><code>routes/
+├── app_pages.dart
+├── app_routes.dart
+└── route_guards.dart</code></pre>
+
+      <div class="card">
+        <h3>app_routes.dart</h3>
+        <p>
+          Contém nomes das rotas.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>app_pages.dart</h3>
+        <p>
+          Configuração completa das páginas GetPage.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>route_guards.dart</h3>
+        <p>
+          Middlewares e proteções de acesso.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Fluxo da Aplicação</h2>
+
+      <div class="flow">
+        UI / Page<br>
+        ↓<br>
+        Controller<br>
+        ↓<br>
+        Repository<br>
+        ↓<br>
+        Provider<br>
+        ↓<br>
+        API / Database
+      </div>
+    </section>
+
+    <section>
+      <h2 id="desacoplamento">Desacoplamento da Arquitetura</h2>
+
+      <p>
+        Esta arquitetura foi projetada para ser desacoplada do gerenciamento de estado.
+      </p>
+
+      <p>
+        Embora o GetX seja a recomendação principal desta arquitetura devido à produtividade,
+        simplicidade e integração completa, a estrutura pode ser utilizada com diversos outros
+        pacotes sem necessidade de alterar a organização principal do projeto.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>GetX</h3>
+          <p>
+            Recomendado para máxima produtividade, rotas integradas,
+            injeção de dependência e gerenciamento de estado simplificado.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Provider</h3>
+          <p>
+            Alternativa simples e oficial da comunidade Flutter baseada em ChangeNotifier.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Riverpod</h3>
+          <p>
+            Solução moderna focada em segurança de dependência,
+            escalabilidade e reatividade.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Bloc / Cubit</h3>
+          <p>
+            Abordagem baseada em eventos e estados,
+            muito utilizada em aplicações corporativas.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Arquitetura Independente do Gerenciador de Estado</h2>
+
+      <p>
+        A arquitetura continua praticamente idêntica independentemente
+        do pacote utilizado.
+      </p>
+
+      <pre><code>lib/
+├── core/
+├── data/
+├── modules/
+├── routes/
+└── shared/</code></pre>
+
+      <p>
+        O que muda é apenas a camada responsável pelo gerenciamento de estado.
+      </p>
+
+      <div class="card">
+        <h3>Exemplo usando GetX</h3>
+
+        <pre><code>modules/auth/
+├── auth_binding.dart
+├── auth_controller.dart
+└── login_page.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Exemplo usando Provider</h3>
+
+        <pre><code>modules/auth/
+├── auth_change_notifier.dart
+└── login_page.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Exemplo usando Riverpod</h3>
+
+        <pre><code>modules/auth/
+├── auth_provider.dart
+├── auth_notifier.dart
+└── login_page.dart</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>Exemplo usando Bloc</h3>
+
+        <pre><code>modules/auth/
+├── auth_bloc.dart
+├── auth_state.dart
+├── auth_event.dart
+└── login_page.dart</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Motivação do Desacoplamento</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Facilidade de migração</h3>
+          <p>
+            Permite trocar o gerenciamento de estado sem refatorar toda aplicação.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Maior longevidade</h3>
+          <p>
+            A arquitetura permanece moderna mesmo com mudanças no ecossistema Flutter.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Escalabilidade</h3>
+          <p>
+            Facilita evolução gradual do projeto.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Baixo acoplamento</h3>
+          <p>
+            O projeto não fica preso a um pacote específico.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="migracao">Migração entre Gerenciadores de Estado</h2>
+
+      <p>
+        Como a arquitetura é desacoplada, a migração entre pacotes tende a afetar apenas
+        a camada de gerenciamento de estado.
+      </p>
+
+      <div class="card">
+        <h3>Exemplo de migração</h3>
+
+        <pre><code>GetX
+Controller
+↓
+Repository
+↓
+Provider
+
+Riverpod
+Notifier
+↓
+Repository
+↓
+Provider</code></pre>
+      </div>
+
+      <p>
+        Na maioria dos casos, os diretórios <strong>core</strong>,
+        <strong>data</strong>, <strong>shared</strong> e a organização dos módulos
+        permanecem praticamente inalterados.
+      </p>
+
+      <p>
+        Isso reduz drasticamente o custo de manutenção e futuras modernizações.
+      </p>
+    </section>
+
+    <section>
+      <h2 id="vantagens">Vantagens da Arquitetura</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Organização</h3>
+          <p>
+            Estrutura clara e previsível.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Escalabilidade</h3>
+          <p>
+            Ideal para projetos grandes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Flutter Web Friendly</h3>
+          <p>
+            Funciona muito bem com navegação web.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Baixo Acoplamento</h3>
+          <p>
+            Facilita manutenção e testes.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Produtividade</h3>
+          <p>
+            Desenvolvimento mais rápido.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Facilidade de Navegação</h3>
+          <p>
+            Menos diretórios e menos complexidade.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="convencoes">Convenções do Projeto</h2>
+
+      <div class="card">
+        <ul>
+          <li>Pages devem terminar com <strong>_page.dart</strong></li>
+          <li>Controllers devem terminar com <strong>_controller.dart</strong></li>
+          <li>Bindings devem terminar com <strong>_binding.dart</strong></li>
+          <li>Services globais ficam em <strong>core/services</strong></li>
+          <li>Providers ficam em <strong>data/providers</strong></li>
+          <li>Repositories ficam em <strong>data/repositories</strong></li>
+          <li>Widgets compartilhados ficam em <strong>shared/widgets</strong></li>
+          <li>Módulos não devem possuir subpastas internas</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="boas-praticas">Boas Práticas</h2>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Evitar lógica na UI</h3>
+          <p>
+            Toda lógica deve permanecer nos controllers, repositories ou services.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Controllers leves</h3>
+          <p>
+            Controllers devem focar apenas no estado e fluxo da interface.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Separação de responsabilidades</h3>
+          <p>
+            Cada camada possui responsabilidade única.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Widgets reutilizáveis</h3>
+          <p>
+            Widgets reutilizados em vários módulos devem ir para shared.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Decisões Arquiteturais</h2>
+
+      <div class="card">
+        <h3>Por que Feature-First?</h3>
+        <p>
+          Organizar o projeto por funcionalidades facilita escalabilidade,
+          manutenção e separação de contexto.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Por que sem subpastas nos módulos?</h3>
+        <p>
+          A redução da profundidade de diretórios melhora produtividade,
+          navegação e velocidade de desenvolvimento.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Por que centralizar providers e repositories?</h3>
+        <p>
+          Centralizar a camada de dados melhora reutilização,
+          desacoplamento e padronização.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Por que GetX?</h3>
+        <p>
+          O GetX oferece gerenciamento de estado, rotas,
+          injeção de dependência e produtividade em uma solução única.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2 id="referencias">Referências Oficiais</h2>
+
+      <div class="card">
+        <h3>Flutter</h3>
+        <ul>
+          <li><a href="https://docs.flutter.dev" target="_blank">Flutter Documentation</a></li>
+          <li><a href="https://docs.flutter.dev/app-architecture" target="_blank">Flutter Architecture Overview</a></li>
+          <li><a href="https://docs.flutter.dev/data-and-backend/state-mgmt/intro" target="_blank">Flutter State Management</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>GetX</h3>
+        <ul>
+          <li><a href="https://pub.dev/packages/get" target="_blank">GetX no Pub.dev</a></li>
+          <li><a href="https://pub.dev/packages/get#documentation" target="_blank">Documentação GetX</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Arquitetura e Padrões</h3>
+        <ul>
+          <li><a href="https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design" target="_blank">Repository Pattern</a></li>
+          <li><a href="https://en.wikipedia.org/wiki/SOLID" target="_blank">SOLID Principles</a></li>
+          <li><a href="https://blog.cleancoder.com" target="_blank">Clean Architecture</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Conclusão</h2>
+
+      <p>
+        Esta arquitetura combina simplicidade, produtividade e escalabilidade,
+        utilizando o melhor do ecossistema Flutter + GetX.
+      </p>
+
+      <p>
+        O modelo feature-first modular reduz complexidade, melhora manutenção e
+        torna o projeto mais preparado para crescimento a longo prazo.
+      </p>
+    </section>
+
+    <section>
+      <h2>Versionamento da Documentação</h2>
+
+      <p>
+        Esta documentação segue um padrão próprio de versionamento semântico.
+      </p>
+
+      <div class="card">
+        <h3>Padrão de versão</h3>
+
+        <pre><code>X.Y.Z</code></pre>
+
+        <ul>
+          <li><strong>X</strong> → Mudanças estruturais grandes na base da arquitetura</li>
+          <li><strong>Y</strong> → Adição de novas funcionalidades, tópicos ou recursos</li>
+          <li><strong>Z</strong> → Correções, ajustes e pequenas melhorias</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Versão atual</h3>
+
+        <p>
+          <strong>1.5.1</strong>
+        </p>
+
+        <p>
+          Alterações contabilizadas desde a criação inicial da documentação:
+        </p>
+
+        <ul>
+          <li>Estrutura inicial da arquitetura</li>
+          <li>Adição de referências oficiais</li>
+          <li>Refinamentos arquiteturais e remoção de dependências fixas</li>
+          <li>Adição da seção de desacoplamento do gerenciamento de estado</li>
+          <li>Adição de exemplos de migração entre gerenciadores</li>
+          <li>Adição de menu lateral de navegação</li>
+          <li>Adição do sistema de versionamento da documentação</li>
+          <li>Refatoração do título principal da arquitetura para nomenclatura desacoplada do GetX</li>
+          <li>Correção do link oficial de referência sobre Repository Pattern</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="footer">
+      <p>
+        Documentação de Flutter Feature-First Modular Architecture
+      </p>
+      <p>
+        Versão 1.5.1
+      </p>
+    </div>
+
+  </div>
+    </div>
+  </div>
+</body>
+</html>
